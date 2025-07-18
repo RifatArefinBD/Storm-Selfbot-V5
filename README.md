@@ -15,7 +15,7 @@ python -m pip install -r requirements.txt
 python main.py
 ```
 
-### 🐧 Linux (Debian/Ubuntu)
+### 🐧 **Linux (Any)**
 ```bash
 sudo apt update -y && sudo apt upgrade -y  
 sudo apt install python3 python3-pip git -y  
@@ -25,7 +25,7 @@ python3 -m pip install -r requirements.txt
 python3 main.py
 ```
 
-🪟 Windows (PowerShell/CMD)
+### 🪟 **Windows (PowerShell/CMD)**
 ```bash
 git clone https://github.com/RifatArefinBD/Storm-Selfbot-V5  
 cd Storm-Selfbot-V5  
@@ -33,7 +33,7 @@ python -m pip install -r requirements.txt
 python main.py
 ```
 
-##🔥 Features
+## 🔥 **Features**
 * Fast command execution
 
 * Customizable modules
