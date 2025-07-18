@@ -1,0 +1,8 @@
+discord.py-self
+aiohttp
+websockets
+colorama
+requests
+psutil
+disnake
+spotipy
