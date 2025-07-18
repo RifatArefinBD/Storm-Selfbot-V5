@@ -40,12 +40,6 @@ def load_jokes():
         return [line.strip() for line in file.readlines()]
 
 # Discord bot setup
-intents = discord.Intents.default()
-intents.members = True
-intents.messages = True
-intents.guilds = True
-intents.dm_messages = True
-intents.guild_messages = True
 status_rotation_active = False
 emoji_rotation_active = False
 current_status = ""
@@ -62,8 +56,7 @@ def get_prefix(bot, message):
     return prefix
 
 # Set up the bot
-intents = discord.Intents.default()
-bot = commands.Bot(command_prefix=get_prefix, self_bot=True, intents=intents, help_command= None)
+bot = commands.Bot(command_prefix=get_prefix, self_bot=True, help_command= None)
 black = "\033[30m"
 red = "\033[31m"
 green = "\033[32m"
@@ -6102,4 +6095,4 @@ async def permissions_error(ctx, error):
         await ctx.send(f"❌ An error occurred: {error}")
     
 
-bot.run (token, bot=False)
+bot.run (token)
