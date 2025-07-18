@@ -1,5 +1,6 @@
 # Storm Selfbot V5  
-*A lightweight Discord selfbot with automation tools (use at your own risk)*  
+*A lightweight Discord selfbot with automation tools (use at your own risk)* 
+![Visitors](https://visitor-badge.laobi.icu/badge?page_id=RifatArefinBD.Storm-Selfbot-V5)
 
 ---
 
