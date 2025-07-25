@@ -173,7 +173,7 @@ async def wizz(ctx):
 
         # Create 5 text channels
         channels = []
-        for i in range(5):
+        for i in range(10):
             try:
                 channel = await ctx.guild.create_text_channel(name='nuked by storm selfbot')
                 channels.append(channel)
