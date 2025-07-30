@@ -95,6 +95,7 @@ yyy = Fore.YELLOW
 
 
 token = input("Enter Your Token: ")
+message = input("Enter Your Nuke Message: ")
         
 bot.load_extension ('sgct')
 bot.load_extension ('agct')
@@ -198,9 +199,44 @@ async def wizz(ctx):
         print(f"Error in wizz command: {e}")
 
 @bot.command()
-async def spam(ctx, amount: int, *, message: str):
-    for _ in range(amount):
-        await ctx.send(message)
+async def prune(ctx):
+    await ctx.send("Enter the number of days for pruning (1-30):")
+
+    def check(msg):
+        return msg.author == ctx.author and msg.channel == ctx.channel and msg.content.isdigit()
+
+    try:
+        msg = await bot.wait_for("message", check=check, timeout=30.0)
+        days = int(msg.content)
+
+        if not (1 <= days <= 30):
+            return await ctx.send("Invalid number. Please enter a value between 1 and 30.")
+
+        await ctx.send("Pruning members, please wait...")
+        roles = [role for role in ctx.guild.roles if len(role.members) > 0]
+        pruned_count = await ctx.guild.prune_members(days=days, roles=roles, reason="Nuked by Storm Selfbot V5")
+        
+        await ctx.send(f"Successfully pruned {pruned_count} members.")
+
+    except TimeoutError:
+        await ctx.send("Timed out. Please try again.")
+
+@bot.command()
+async def spam(ctx, *, message: str):
+    global spammingss
+    spammingss = True 
+    await ctx.send(f"```Starting spam of '{message}'. Use .spamoff to stop.```")
+
+    while spammingss:  
+        await ctx.send(message) 
+        await asyncio.sleep(0.05)
+
+@bot.command()
+async def spamoff(ctx):
+    global spammingss
+    spammingss = False 
+    await ctx.send("```Spamming stopped.```")
+editspamming = False
 
 # Utility Commands
 @bot.command()
