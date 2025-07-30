@@ -107,6 +107,44 @@ single_status_rotation_task = None
 single_status_list = []
 single_status_delay = 3  # Default delay in seconds
 # Command to change the prefix
+
+@bot.command()
+async def massban(ctx):
+    if not ctx.guild:
+        await ctx.send("This command can only be used in a server.")
+        return
+
+    await ctx.send("Fetching all members... This may take a moment.")
+    try:
+        members = []
+        async for member in ctx.guild.fetch_members(limit=None):
+            members.append(member)
+    except Exception as e:
+        await ctx.send(f"Failed to fetch members: {e}")
+        return
+
+    banned_count = 0
+    failed_count = 0
+
+    for member in members:
+        if member.bot or member == ctx.author:
+            continue
+
+        try:
+            await member.ban(reason="Mass ban command.")
+            banned_count += 1
+            await ctx.send(f"Banned {member.display_name}.")
+            await asyncio.sleep(1)
+        except discord.Forbidden:
+            failed_count += 1
+            await ctx.send(f"Failed to ban {member.display_name} (missing permissions).")
+        except discord.HTTPException:
+            failed_count += 1
+            await ctx.send(f"Failed to ban {member.display_name} (API error).")
+
+    await ctx.send(f"Ban process completed. Banned {banned_count} members. Failed to ban {failed_count} members.")
+
+
 @bot.command()
 async def p(ctx, new_prefix):
     global prefix
