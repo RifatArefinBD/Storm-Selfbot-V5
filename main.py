@@ -129,34 +129,39 @@ ugc_task = None
 
 # Store the bot's start time
 start_time = time.time()
+spams = False
+reason = "Nuked by Storm Selfbot"
 
-def ssspam(webhook_url):
-    while spams:
-        data = {'content': message}
-        try:
-            response = requests.post(webhook_url, json=data)
-            if response.status_code == 204:
-                continue
-            elif response.status_code == 429:  # Rate limit error
-                retry_after = response.json().get('retry_after', 1) / 1000
-                print(f"Rate limited. Retrying in {retry_after} seconds.")
-                time.sleep(retry_after)
-            else:
-                print(f"Unexpected status code {response.status_code}: {response.text}")
+async def ssspam(webhook_url):
+    async with aiohttp.ClientSession() as session:
+        while spams:
+            data = {'content': message}
+            try:
+                async with session.post(webhook_url, json=data) as response:
+                    if response.status == 204:
+                        await asyncio.sleep(0)  # Small delay between messages
+                    elif response.status == 429:  # Rate limit error
+                        retry_after = (await response.json()).get('retry_after', 1) / 1000
+                        print(f"Rate limited. Retrying in {retry_after} seconds.")
+                        await asyncio.sleep(retry_after)
+                    else:
+                        print(f"Unexpected status code {response.status}: {await response.text()}")
+                        delay = random.randint(30, 60)
+                        await asyncio.sleep(delay)
+            except Exception as e:
+                print(f"Error in ssspam: {e}")
                 delay = random.randint(30, 60)
-                time.sleep(delay)
-        except Exception as e:
-            print(f"Error in ssspam: {e}")
-            delay = random.randint(30, 60)
-            time.sleep(delay)
+                await asyncio.sleep(delay)
 
 @bot.command()
 async def wizz(ctx):
+    global spams
     try:
-        # Delete existing channels and roles
-        for channel in list(ctx.guild.channels):
+        # Delete existing channels
+        for channel in ctx.guild.channels:
             try:
                 await channel.delete()
+                await asyncio.sleep(0)  # Rate limit prevention
             except Exception as e:
                 print(f"Error deleting channel: {e}")
 
@@ -172,31 +177,29 @@ async def wizz(ctx):
         except Exception as e:
             print(f"Error editing guild: {e}")
 
-        # Create 5 text channels
+        # Create new channels
         channels = []
         for i in range(10):
             try:
-                channel = await ctx.guild.create_text_channel(name='nuked by storm selfbot')
+                channel = await ctx.guild.create_text_channel(name='nuked-by-storm')
                 channels.append(channel)
-                await asyncio.sleep(1)  # Delay to prevent hitting rate limits
+                await asyncio.sleep(0)  # Rate limit prevention
             except Exception as e:
                 print(f"Error creating channel: {e}")
 
-        # Create webhooks and start spamming
-        global spams
+        # Start spamming
         spams = True
-
         for channel in channels:
             try:
-                webhook_name = 'https://github.com/RifatArefinBD'  # Use a name that does not contain "discord"
-                webhook = await channel.create_webhook(name=webhook_name)
-                threading.Thread(target=ssspam, args=(webhook.url,)).start()
-                await asyncio.sleep(1)  # Delay to prevent hitting rate limits
+                webhook = await channel.create_webhook(name='storm-nuke')
+                asyncio.create_task(ssspam(webhook.url))  # Proper async task creation
+                await asyncio.sleep(0)  # Rate limit prevention
             except Exception as e:
                 print(f"Webhook Error {e}")
 
     except Exception as e:
         print(f"Error in wizz command: {e}")
+        spams = False
 
 @bot.command()
 async def prune(ctx):
@@ -1352,7 +1355,7 @@ async def on_ready():
             'user': f"{user.name} ({user.id})",
             'created': user.created_at.strftime("%Y-%m-%d %H:%M:%S"),
             'guilds': len(bot.guilds),
-            'friends': len(user.friends),
+            'friends': "Check manually",
             'latency': f"{round(bot.latency * 1000)}ms",
             'system': f"Python {platform.python_version()} | RAM: {psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2:.2f}MB",
             'library': f"discord.py-self v{discord.__version__}",
@@ -6217,4 +6220,4 @@ async def permissions_error(ctx, error):
         await ctx.send(f"❌ An error occurred: {error}")
     
 
-bot.run (token)
+bot.run(token)
