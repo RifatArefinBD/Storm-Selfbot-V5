@@ -40,3 +40,8 @@ python main.py
 * Customizable modules
 
 * Cross-platform compatibility
+
+## **Credits**
+THE BIG 5
+
+IDK OWNER NAMES
